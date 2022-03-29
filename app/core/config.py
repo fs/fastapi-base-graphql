@@ -5,8 +5,6 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import (
     AnyHttpUrl,
     BaseSettings,
-    EmailStr,
-    HttpUrl,
     PostgresDsn,
     validator,
 )
@@ -58,5 +56,6 @@ class Settings(BaseSettings):
     class Config:
         case_sensitive = True
         env_file = PROJECT_ROOT.joinpath('config/.env').resolve()
+
 
 settings = Settings()

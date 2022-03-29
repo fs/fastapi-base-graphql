@@ -56,3 +56,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
 
 user = CRUDUser(User)
+
+
+__all__ = ['user']

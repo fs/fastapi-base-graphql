@@ -1,4 +1,3 @@
-from typing import Optional, List
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 import app.graphql.mutations.users
