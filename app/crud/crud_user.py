@@ -15,10 +15,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, *, email: str) -> Optional[User]:
         return session.query(User).filter(User.email == email).first()
 
-    def create(self, *, obj_in: UserCreate) -> User:
+    def create(self, obj_in: UserCreate) -> User:
         db_obj = User(
             email=obj_in.email,
-            hashed_password=get_password_hash(obj_in.password),
+            password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
             is_superuser=obj_in.is_superuser,
         )
@@ -34,10 +34,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        if update_data["password"]:
-            hashed_password = get_password_hash(update_data["password"])
-            del update_data["password"]
-            update_data["hashed_password"] = hashed_password
+        if update_data['password']:
+            hashed_password = get_password_hash(update_data['password'])
+            del update_data['password']
+            update_data['hashed_password'] = hashed_password
         return super().update(db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
@@ -56,6 +56,3 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
 
 user = CRUDUser(User)
-
-
-__all__ = ['user']

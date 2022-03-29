@@ -3,7 +3,7 @@ from typing import Generic, Optional, TypeVar
 
 import strawberry
 
-GenericType = TypeVar("GenericType")
+GenericType = TypeVar('GenericType')
 
 
 @strawberry.type
@@ -14,8 +14,9 @@ class Connection(Generic[GenericType]):
     In a Facebook-based domain example, a friendship between two people
     would be a connection that might have a `friendshipStartTime`
     """
-    page_info: "PageInfo"
-    edges: list["Edge[GenericType]"]
+
+    page_info: 'PageInfo'
+    edges: list['Edge[GenericType]']
 
 
 @strawberry.type
@@ -29,6 +30,7 @@ class PageInfo:
         - https://graphql.org/learn/pagination/#pagination-and-edges
         - https://relay.dev/graphql/connections.htm
     """
+
     has_next_page: bool
     has_previous_page: bool
     start_cursor: Optional[str]
@@ -38,13 +40,14 @@ class PageInfo:
 @strawberry.type
 class Edge(Generic[GenericType]):
     """An edge may contain additional information of the relationship. This is the trivial case"""
+
     node: GenericType
     cursor: str
 
     @classmethod
     def build_cursor(cls):
         """Build base64 encoded node cursor."""
-        nodeid = f"{id(cls.node)}".encode("utf-8")
+        nodeid = f'{id(cls.node)}'.encode('utf-8')
         return base64.b64encode(nodeid).decode()
 
 

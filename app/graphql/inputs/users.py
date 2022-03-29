@@ -1,13 +1,8 @@
-from typing import Optional
-
 import strawberry
 
+from app.schemas import UserCreate
 
-@strawberry.input
-class CreateUser:
+
+@strawberry.experimental.pydantic.input(model=UserCreate, all_fields=True)
+class CreateUserInput:
     """Create user input."""
-
-    email: str
-    password: str
-    is_active: Optional[bool] = True
-    full_name: Optional[str] = None

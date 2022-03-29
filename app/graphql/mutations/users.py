@@ -1,17 +1,16 @@
 import strawberry
 
 from app.crud import crud_user
-from app.graphql.types import users
-from app.graphql.inputs.users import CreateUser
+from app.graphql.inputs.users import CreateUserInput
+from app.graphql.types.users import UserType
 
 
-def create_user(input: CreateUser) -> users.User:
+def create_user(input: CreateUserInput) -> UserType:
     """Create user mutation test resolver."""
-    user = crud_user.user.get_by_email(email=input.email)
-    if user:
-        raise ValueError('User already created')
-    user = crud_user.user.create(obj_in=user)
-    return user
+    if crud_user.user.get_by_email(email=input.email):
+        raise ValueError('User already created')  # TODO: Add exception and exceptions structure
+    user = crud_user.user.create(obj_in=input.to_pydantic())
+    return UserType.from_pydantic(user)
 
 
 @strawberry.type

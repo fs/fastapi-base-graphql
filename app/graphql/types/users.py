@@ -2,13 +2,9 @@ from typing import Optional
 
 import strawberry
 
+from app.schemas import User
 
-@strawberry.type
-class User:
+
+@strawberry.experimental.pydantic.type(model=User, all_fields=True)
+class UserType:
     """Common user type."""
-
-    id: Optional[int]
-    fullName: str
-    email: Optional[str]
-    is_active: Optional[bool]
-    is_superuser: Optional[bool]
