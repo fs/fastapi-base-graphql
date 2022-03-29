@@ -1,8 +1,7 @@
 import base64
-from typing import Generic, TypeVar, Optional
+from typing import Generic, Optional, TypeVar
 
 import strawberry
-
 
 GenericType = TypeVar("GenericType")
 

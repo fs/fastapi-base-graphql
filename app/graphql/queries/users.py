@@ -1,8 +1,10 @@
-from app.graphql.types import users
-import strawberry
 from typing import List
-from app.models.user import User
+
+import strawberry
+
 from app.db.session import session
+from app.graphql.types import users
+from app.models import User
 
 
 def get_users() -> List[users.User]:

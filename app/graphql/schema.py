@@ -1,5 +1,6 @@
 import strawberry
 from strawberry.fastapi import GraphQLRouter
+
 import app.graphql.mutations.users
 import app.graphql.queries.users
 

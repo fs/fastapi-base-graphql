@@ -4,8 +4,8 @@ from app.db.session import SessionLocal
 
 
 def get_db() -> Generator:
-    try:
-        db = SessionLocal()
-        yield db
+    """Get db session generator."""
+    try:  # noqa: WPS501
+        yield db := SessionLocal()
     finally:
         db.close()

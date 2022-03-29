@@ -1,6 +1,7 @@
+import strawberry
+
 from app.crud import crud_user
 from app.graphql.types import users
-import strawberry
 from app.graphql.inputs.users import CreateUser
 
 
