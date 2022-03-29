@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
@@ -10,11 +10,10 @@ class User(Base):
 
     __tablename__: str = 'users'
 
-    id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password = Column(String, nullable=False)
-    is_active = Column(Boolean(), default=True)
-    is_superuser = Column(Boolean(), default=False)
-    access_token = Column('accessToken', String, unique=True, index=True)
-
+    id: int = Column(Integer, primary_key=True, index=True)
+    full_name: str = Column(String, index=True)
+    email: str = Column(String, unique=True, index=True, nullable=False)
+    password: str = Column(String, nullable=False)
+    is_active: bool = Column(Boolean(), default=True)
+    is_superuser: bool = Column(Boolean(), default=False)
+    access_token: str = Column('accessToken', String, unique=True, index=True)
