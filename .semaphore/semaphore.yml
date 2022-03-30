@@ -22,8 +22,6 @@ global_job_config:
       - 'export IMAGE_NAME="${DOCKER_REPO}/final:${SEMAPHORE_GIT_BRANCH}"'
       - 'echo "${DOCKER_PASSWORD}" | docker login https://docker.pkg.github.com -u "${DOCKER_USERNAME}" --password-stdin'
       - checkout
-      - 'echo "IMAGE_NAME=${IMAGE_NAME}" >> ~/.env'
-      - 'cp ~/.env ~/python-base-graphql-api/config/.env'
 blocks:
   - name: Build
     task:
