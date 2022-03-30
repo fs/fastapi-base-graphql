@@ -4,13 +4,11 @@ services:
 
     db:
       image: postgres:12-alpine
-      env_file:
-        - "config/.env"
 
     web:
       build:
         context: .
-        dockerfile: docker/django/Dockerfile
+        dockerfile: docker/fastapi/Dockerfile
       command: poetry run gunicorn -w 4 -k uvicorn.workers.UvicornWorker
       environment:
         - POSTGRES_HOST=db
