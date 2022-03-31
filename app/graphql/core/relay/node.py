@@ -1,8 +1,10 @@
 import base64
 from typing import Generic, Optional, TypeVar
-
+from functools import wraps
 import strawberry
 
+from app.graphql.types.users import UserType
+from app.db.session import session
 GenericType = TypeVar('GenericType')
 
 
@@ -52,3 +54,20 @@ class Edge(Generic[GenericType]):
 
 
 # TODO: Add cursor pagination
+
+
+def connection(func):
+    @wraps(func)
+    def with_connection(
+            before: Optional[str],
+            after: Optional[str],
+            first: Optional[str],
+            last: Optional[str],
+    ):
+        type_ = func.__annotations__['return'].__args__[0]
+        model = type_.Meta.model
+        query = session.query(model)
+        resolved = func()
+        print(type_)
+        return resolved
+    return with_connection
