@@ -22,6 +22,15 @@ class UserUpdate(UserBase):
     password: Optional[str] = None
 
 
+class SignInUser(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserToken(BaseModel):
+    access_token: str
+
+
 class UserInDBBase(UserBase):
     id: Optional[int] = None
 
