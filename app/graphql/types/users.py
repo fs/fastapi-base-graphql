@@ -8,11 +8,6 @@ from app.graphql.core.types import BaseType
 from app.models.user import User
 
 
-# @strawberry.experimental.pydantic.type(model=UserPyd, all_fields=True)
-# class UserType:
-#     """Common user type."""
-
-
 @strawberry.type
 class UserType(BaseType):
     """Common user type."""

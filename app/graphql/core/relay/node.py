@@ -1,3 +1,4 @@
+import inspect
 import base64
 from typing import Generic, Optional, TypeVar
 from functools import wraps
@@ -5,6 +6,7 @@ import strawberry
 
 from app.graphql.types.users import UserType
 from app.db.session import session
+from sqlalchemy.orm import Query
 GenericType = TypeVar('GenericType')
 
 
@@ -58,12 +60,7 @@ class Edge(Generic[GenericType]):
 
 def connection(func):
     @wraps(func)
-    def with_connection(
-            before: Optional[str],
-            after: Optional[str],
-            first: Optional[str],
-            last: Optional[str],
-    ):
+    def with_connection(*args, **kwargs):
         type_ = func.__annotations__['return'].__args__[0]
         model = type_.Meta.model
         query = session.query(model)
@@ -71,3 +68,7 @@ def connection(func):
         print(type_)
         return resolved
     return with_connection
+
+
+def resolve_connection(query: Query, **kwargs):
+    ...
