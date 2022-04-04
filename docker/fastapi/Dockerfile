@@ -32,7 +32,7 @@ WORKDIR /code
 
 RUN poetry install
 
-COPY .. /code
+COPY . /code
 
 
 

@@ -1,7 +1,7 @@
-ci: build lint run-test
+ci: build lint mypy run-test
 
 build:
-	sudo docker-compose --env-file config/.env up -d
+	sudo docker-compose up -d
 
 lint:
 	sudo docker-compose exec -T web poetry run flake8 .
