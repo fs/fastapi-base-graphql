@@ -1,3 +1,4 @@
 
 def test():
-    assert True
+    """For testing CI."""
+    assert 1 == 1  # noqa: WPS308
