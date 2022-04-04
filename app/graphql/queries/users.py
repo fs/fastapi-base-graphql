@@ -1,13 +1,13 @@
+from pydantic import ConfigError
 import strawberry
 from typing import Optional
 from app.db.session import session
 from app.graphql.types.users import UserType
 from app.models import User
-from app.graphql.core.relay.node import connection
+from app.graphql.core.relay.node import connection, connection_field, Connection
 
 
-@connection
-def get_users() -> list[UserType]:
+def get_users():
     """Get all users."""
     users = session.query(User).all()
     return [UserType.from_instance(user) for user in users]
@@ -17,11 +17,4 @@ def get_users() -> list[UserType]:
 class Query:
     """User query fields."""
 
-    @strawberry.field
-    def users(
-        before: Optional[str] = None,
-        after: Optional[str] = None,
-        first: Optional[str] = None,
-        last: Optional[str] = None,
-    ) -> list[UserType]:
-        return get_users()
+    users: Connection[UserType] = connection_field(resolver=get_users)
