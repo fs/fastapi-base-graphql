@@ -29,7 +29,7 @@ blocks:
         - name: Docker build
           commands:
             - 'docker pull "${IMAGE_NAME}" || true'
-            - 'docker build -t "${IMAGE_NAME}" --cache-from="${IMAGE_NAME}" -f ./docker/django/Dockerfile .'
+            - 'docker build -t "${IMAGE_NAME}" --cache-from="${IMAGE_NAME}" -f ./docker/fastapi/Dockerfile .'
             - 'docker push "${IMAGE_NAME}"'
   - name: Run
     task:
