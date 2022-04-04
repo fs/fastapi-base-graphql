@@ -21,7 +21,7 @@ global_job_config:
       - 'export DOCKER_REPO="docker.pkg.github.com/fs/fastapi-base-graphql"'
       - 'export IMAGE_NAME="${DOCKER_REPO}/final:${SEMAPHORE_GIT_BRANCH}"'
       - 'echo "${DOCKER_PASSWORD}" | docker login https://docker.pkg.github.com -u "${DOCKER_USERNAME}" --password-stdin'
-      - 'env > .env'
+      - 'env > config/.env'
       - 'checkout'
 blocks:
   - name: Build
