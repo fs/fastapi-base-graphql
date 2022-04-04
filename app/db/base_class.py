@@ -1,5 +1,6 @@
 from typing import Any
 
+from sqlalchemy import Column, Integer
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
 
@@ -7,7 +8,7 @@ from sqlalchemy.ext.declarative import as_declarative, declared_attr
 class Base:
     """Base db model class."""
 
-    id: Any
+    id: int = Column(Integer, primary_key=True, index=True)
     __name__: str
     # Generate __tablename__ automatically
 

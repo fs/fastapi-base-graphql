@@ -1,10 +1,5 @@
 import strawberry
-from app.schemas.user import User
-
-
-@strawberry.experimental.pydantic.type(model=User, all_fields=True)
-class UserType:
-    """ User model"""
+from app.graphql.types.users import UserType
 
 
 @strawberry.type

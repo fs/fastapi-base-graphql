@@ -8,6 +8,6 @@ class SignInInput:
     """Sign In user input"""
 
 
-@strawberry.type
+@strawberry.input
 class SignOutInput:
     everywhere: bool

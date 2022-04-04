@@ -9,7 +9,7 @@ class RefreshToken(Base):
 
     __tablename__ = 'refresh_tokens'
 
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     jti = Column(String)
     token = Column(String)
     created_at = Column(DateTime, default=datetime.now)
@@ -17,6 +17,3 @@ class RefreshToken(Base):
     revoked_at = Column(DateTime, nullable=True)
 
     user = relationship('User', back_populates='refresh_tokens')
-
-
-

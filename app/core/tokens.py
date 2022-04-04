@@ -7,6 +7,9 @@ from app.crud.crud_refresh_token import refresh_token as crud_rt
 from datetime import datetime
 import jwt
 
+from app.models.refresh_token import RefreshToken
+from app.schemas import RefreshTokenCreate
+
 
 def encode_access_token(user_id: int, jti: str) -> str:
     payload = {
@@ -19,13 +22,13 @@ def encode_access_token(user_id: int, jti: str) -> str:
     return jwt.encode(
         payload,
         settings.JWT_SETTINGS['JWT_SECRET_KEY'],
-        algorithm=settings.JWT_SETTINGS['JWT_ALGORITHM']
+        settings.JWT_SETTINGS['JWT_ALGORITHM']
     )
 
 
 def decode_access_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
+        payload = jwt.decode(token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Token expired')
 
@@ -50,21 +53,26 @@ def encode_refresh_token(user_id: int, jti: str) -> str:
     )
 
 
-def new_token_pair(refresh_token: str) -> tuple[str, str]:
+def new_token_pair(refresh_token: str) -> tuple[str, RefreshToken]:
     try:
-        payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
+        payload = jwt.decode(refresh_token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Refresh token expired')
 
     if payload['scope'] == 'refresh_token':
         user_id = payload['user_id']
-        db_obj = crud_rt.get_by_jti(payload['jti'])
+        db_obj = crud_rt.get_by_jti(jti=payload['jti'])
         if not db_obj.revoked_at:
-            crud_rt.revoke(payload['jti'])
+            crud_rt.revoke(jti=payload['jti'])
             jti = generate_hash_for_jti(user_id, datetime.now())
             new_access_token = encode_access_token(user_id, jti)
             new_refresh_token = encode_refresh_token(user_id, jti)
-            return new_access_token, new_refresh_token
+            new_obj = crud_rt.create(obj_in=RefreshTokenCreate.parse_obj({
+                'user_id': user_id,
+                'jti': jti,
+                'token': new_refresh_token
+            }))
+            return new_access_token, new_obj
         else:
             raise HTTPException(status_code=401, detail='This token has been revoked')
     else:

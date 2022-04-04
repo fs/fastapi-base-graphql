@@ -10,9 +10,9 @@ from app.db.session import session
 class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUpdate]):
     def create(self, *, obj_in: RefreshTokenCreate) -> RefreshToken:
         db_obj = RefreshToken(
-            obj_in.user_id,
-            obj_in.jti,
-            obj_in.token
+            user_id=obj_in.user_id,
+            jti=obj_in.jti,
+            token=obj_in.token
         )
 
         session.add(db_obj)
@@ -47,7 +47,7 @@ class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUp
     def revoke_all_for_user(self, *, user_id: int) -> NoReturn:
         all_tokens = self.get_all_by_user_id(user_id=user_id)
         jtis = [token.jti for token in all_tokens]
-        session.query(RefreshToken).filter(RefreshToken.jti._in(jtis)).update({'revoked_at': datetime.now()})
+        session.query(RefreshToken).filter(RefreshToken.jti.in_(jtis)).update({'revoked_at': datetime.now()})
         session.commit()
 
 
