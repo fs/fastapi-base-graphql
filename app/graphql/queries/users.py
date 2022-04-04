@@ -9,8 +9,8 @@ from app.graphql.core.relay.node import connection, connection_field, Connection
 
 def get_users():
     """Get all users."""
-    users = session.query(User).all()
-    return [UserType.from_instance(user) for user in users]
+    #users = session.query(User).all()
+    return session.query(User)
 
 
 @strawberry.type
