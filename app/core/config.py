@@ -63,5 +63,7 @@ class Settings(BaseSettings):
         'JWT_VERIFY': True,
     }
 
+    HASHING_ALGORITHM = 'HS256'
+
 
 settings = Settings()

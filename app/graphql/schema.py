@@ -4,7 +4,6 @@ from strawberry.fastapi import GraphQLRouter, BaseContext
 import app.graphql.mutations.users
 import app.graphql.queries.users
 import app.graphql.mutations.authentication
-import app.graphql.queries.authentication
 from app.core import extensions
 from fastapi import Depends
 
@@ -12,7 +11,6 @@ from fastapi import Depends
 @strawberry.type
 class Query(
     app.graphql.queries.users.Query,
-    app.graphql.queries.authentication.Query,
 ):
     """Main query type class."""
 

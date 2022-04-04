@@ -26,11 +26,13 @@ def encode_access_token(user_id: int, jti: str) -> str:
 def decode_access_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
-        if payload['scope'] == 'access_token':
-            return payload
-        raise HTTPException(status_code=401, detail='Scope for the token is invalid')
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Token expired')
+
+    if payload['scope'] == 'access_token':
+        return payload
+    else:
+        raise HTTPException(status_code=401, detail='Scope for the token is invalid')
 
 
 def encode_refresh_token(user_id: int, jti: str) -> str:
@@ -51,15 +53,19 @@ def encode_refresh_token(user_id: int, jti: str) -> str:
 def new_token_pair(refresh_token: str) -> tuple[str, str]:
     try:
         payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
-        if payload['scope'] == 'refresh_token':
-            user_id = payload['user_id']
-            db_obj = crud_rt.get_by_user_id(user_id)
-            if not db_obj.revoked_at:
-                jti = generate_hash_for_jti(user_id, datetime.now())
-                new_access_token = encode_access_token(user_id, jti)
-                new_refresh_token = encode_refresh_token(user_id, jti)
-                return new_access_token, new_refresh_token
-            raise HTTPException(status_code=401, detail='This token has been revoked')
-        raise HTTPException(status_code=401, detail='Invalid scope for token')
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Refresh token expired')
+
+    if payload['scope'] == 'refresh_token':
+        user_id = payload['user_id']
+        db_obj = crud_rt.get_by_jti(payload['jti'])
+        if not db_obj.revoked_at:
+            crud_rt.revoke(payload['jti'])
+            jti = generate_hash_for_jti(user_id, datetime.now())
+            new_access_token = encode_access_token(user_id, jti)
+            new_refresh_token = encode_refresh_token(user_id, jti)
+            return new_access_token, new_refresh_token
+        else:
+            raise HTTPException(status_code=401, detail='This token has been revoked')
+    else:
+        raise HTTPException(status_code=401, detail='Invalid scope for token')
