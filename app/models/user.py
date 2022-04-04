@@ -4,6 +4,8 @@ from app.db import Base
 
 
 class User(Base):
+    """User db schema."""
+
     id: int = Column(Integer, primary_key=True, index=True)
     full_name: str = Column(String, index=True)
     email: str = Column(String, unique=True, index=True, nullable=False)

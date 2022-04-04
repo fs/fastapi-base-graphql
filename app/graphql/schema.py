@@ -21,7 +21,7 @@ class Mutation(
 
 schema = strawberry.Schema(
     query=Query,
-    mutation=Mutation
+    mutation=Mutation,
 )
 
 graphql_app = GraphQLRouter(schema)
