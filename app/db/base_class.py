@@ -1,5 +1,5 @@
-from typing import Any
-
+import inflection
+from sqlalchemy import Column, Integer
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
 
@@ -7,10 +7,10 @@ from sqlalchemy.ext.declarative import as_declarative, declared_attr
 class Base:
     """Base db model class."""
 
-    id: Any
+    id: int = Column(Integer, primary_key=True, index=True)
     __name__: str
 
     @declared_attr
     def __tablename__(cls) -> str:  # noqa: N805
         """Generate __tablename__ automatically."""
-        return cls.__name__.lower()
+        return inflection.underscore(cls.__name__) + 's'
