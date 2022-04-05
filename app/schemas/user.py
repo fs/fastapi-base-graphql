@@ -22,6 +22,15 @@ class UserUpdate(UserBase):
     password: Optional[str] = None
 
 
+class SignInUser(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserToken(BaseModel):
+    access_token: str
+
+
 class UserInDBBase(UserBase):
     id: Optional[int] = None
 
@@ -31,7 +40,8 @@ class UserInDBBase(UserBase):
 
 # Additional properties to return via API
 class User(UserInDBBase):
-    pass
+    id: int
+    email: EmailStr
 
 
 # Additional properties stored in DB
