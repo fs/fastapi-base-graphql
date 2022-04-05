@@ -5,6 +5,7 @@ from starlette.responses import Response
 
 import app.graphql.queries.users
 import app.graphql.mutations.authentication
+import app.graphql.mutations.users
 from app.core import extensions
 from fastapi import Depends
 
@@ -19,6 +20,7 @@ class Query(
 @strawberry.type
 class Mutation(
     app.graphql.mutations.authentication.Mutation,
+    app.graphql.mutations.users.Mutation,
 ):
     """Main mutation type class."""
 
