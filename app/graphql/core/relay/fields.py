@@ -5,6 +5,11 @@ import strawberry
 from strawberry.arguments import UNSET
 
 
+def resolve_connection(resolver, **kwargs):
+
+    list_lenght = resolver().count()
+
+
 def connection(*args, **kwargs):
     func = args[0]
     annotation = func.__annotations__.get('return')
