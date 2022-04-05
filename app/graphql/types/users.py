@@ -2,8 +2,6 @@ from re import fullmatch
 from typing import Optional
 
 import strawberry
-
-from app.schemas import User as UserPyd
 from app.graphql.core.types import BaseType
 from app.models.user import User
 

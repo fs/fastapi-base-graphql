@@ -1,19 +1,17 @@
-from pydantic import ConfigError
-import strawberry
 from typing import Optional
-from app.db.session import session
-from app.graphql.types.users import UserType
-from app.models import User
-from app.graphql.core.relay.node import connection, connection_field, Connection
+
+import strawberry
+from strawberry.types import Info
+
+from app.graphql.types.users import User
 
 
-def get_users():
-    """Get all users."""
-    return session.query(User)
+def get_current_user(info: Info) -> Optional[User]:
+    return User.from_pydantic(info.context.current_user)
 
 
 @strawberry.type
 class Query:
     """User query fields."""
 
-    users: Connection[UserType] = connection_field(resolver=get_users)
+    me = strawberry.field(resolver=get_current_user, description='Current User model query')
