@@ -1,14 +1,16 @@
+from typing import Optional
+
 import strawberry
-from app.graphql.types.users import UserType
+from app.graphql.types.users import User
 
 
-@strawberry.type
-class TokenPairType:
-    access_token: str
-    refresh_token: str
-    me: UserType
+@strawberry.type(description='Output for authenticated mutation.')
+class Authentication:
+    access_token: Optional[str]
+    refresh_token: Optional[str]
+    me: Optional[User]
 
 
-@strawberry.type
-class SignOutType:
-    message: str
+@strawberry.type(description='Output message after signout.')
+class Message:
+    message: Optional[str]

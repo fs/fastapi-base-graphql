@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from pydantic.error_wrappers import ErrorWrapper
 
 from app.core.config import settings
 from app.core.security import generate_hash_for_jti
@@ -31,6 +32,8 @@ def decode_access_token(token: str) -> AccessTokenPayload:
         payload = AccessTokenPayload.parse_obj(jwt.decode(token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']]))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Token expired')
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e.args[0][0].exc))
 
     return payload
 
@@ -55,6 +58,8 @@ def new_token_pair(refresh_token: str) -> tuple[str, RefreshToken]:
         payload = RefreshTokenPayload.parse_obj(jwt.decode(refresh_token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']]))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Refresh token expired')
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e.args[0][0].exc))
 
     user_id = payload.user_id
     db_obj = crud_rt.get_by_jti(jti=payload.jti)

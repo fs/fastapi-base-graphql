@@ -1,5 +1,6 @@
 from typing import Union, Dict, Any, NoReturn, List
 from datetime import datetime
+from sqlalchemy import and_
 
 from app.crud.base import CRUDBase
 from app.models.refresh_token import RefreshToken
@@ -47,7 +48,7 @@ class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUp
     def revoke_all_for_user(self, *, user_id: int) -> None:
         all_tokens = self.get_all_by_user_id(user_id=user_id)
         jtis = [token.jti for token in all_tokens]
-        session.query(RefreshToken).filter(RefreshToken.jti.in_(jtis)).update({'revoked_at': datetime.now()})
+        session.query(RefreshToken).filter(and_(RefreshToken.jti.in_(jtis), RefreshToken.revoked_at.is_(None))).update({'revoked_at': datetime.now()})
         session.commit()
 
 

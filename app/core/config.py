@@ -1,5 +1,5 @@
 import os
-import secrets
+import dotenv
 from datetime import timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+dotenv.load_dotenv(f'{PROJECT_ROOT}/config/.env')
 
 
 class Settings(BaseSettings):
