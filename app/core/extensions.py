@@ -1,14 +1,16 @@
 from typing import Optional
+from contextlib import suppress
+
 from fastapi import HTTPException
 from starlette.requests import Request
 
-from app.models import User
-from app.core import tokens
-from app.core.config import settings
-from app.crud import crud_user, crud_refresh_token
+from app.core import tokens, settings
+from app.crud import crud_user
+
+from strawberry.extensions import Extension
 
 
-def access_token(request: Request) -> Optional[str]:
+def get_access_token_from_request(request: Request) -> Optional[str]:
     authorization_header = request.headers.get(settings.JWT_SETTINGS['JWT_AUTH_HEADER_NAME'].lower())
     if not authorization_header:
         return None
@@ -20,25 +22,17 @@ def access_token(request: Request) -> Optional[str]:
     return auth[1]
 
 
-def current_user(request: Request) -> Optional[User]:
-    token = access_token(request)
-    if not token:
-        return None
+class CurrentUserExtension(Extension):
+    def on_request_start(self):
+        request = self.execution_context.context['request']
+        token = get_access_token_from_request(request)
+        with suppress(HTTPException):
+            if token:
+                user_id = tokens.decode_access_token(token).user_id
+                user_obj = crud_user.user.get(user_id)
+                setattr(request, 'current_user', user_obj)
+                setattr(request, 'access_token', token)
+                return
+        setattr(request, 'current_user', None)
+        setattr(request, 'access_token', None)
 
-    user_id = tokens.decode_access_token(token).user_id
-    user_obj = crud_user.user.get(user_id)
-    return user_obj
-
-
-def authenticated(request: Request) -> bool:
-    token = access_token(request)
-    if not token:
-        return False
-
-    refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
-    if not refresh_token:
-        return False
-    elif refresh_token.revoked_at:
-        return False
-
-    return True

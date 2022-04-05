@@ -1,8 +1,9 @@
 from typing import Optional
 
 import strawberry
-from strawberry.types import Info
+from graphql.error import GraphQLError
 from fastapi import HTTPException
+from strawberry.types import Info
 from datetime import datetime
 
 from app.graphql.types.authentication import Authentication, Message, User
@@ -13,6 +14,7 @@ from app.schemas import UserCreate
 from app.schemas.refresh_token import RefreshTokenCreate
 from app.core import security
 from app.core import settings
+from app.core.permissions import IsAuthenticated
 
 
 def user_sign_in(input: SignInInput, info: Info) -> Optional[Authentication]:
@@ -35,10 +37,7 @@ def user_sign_in(input: SignInInput, info: Info) -> Optional[Authentication]:
 
 
 def new_token_pair(info: Info) -> Optional[Authentication]:
-    if not info.context.authenticated:
-        raise HTTPException(status_code=403, detail='Not authenticated')
-
-    refresh_token = info.context.request.cookies.get(settings.JWT_SETTINGS['JWT_REFRESH_TOKEN_COOKIE_NAME'])
+    refresh_token = info.context['request'].cookies.get(settings.JWT_SETTINGS['JWT_REFRESH_TOKEN_COOKIE_NAME'])
     if not refresh_token:
         raise HTTPException(status_code=401, detail='Refresh token was not provided')
 
@@ -48,21 +47,13 @@ def new_token_pair(info: Info) -> Optional[Authentication]:
 
 
 def user_sign_out(input: SignOutInput, info: Info) -> Optional[Message]:
+    access_token = info.context['request'].access_token
     if not input.everywhere:
-        access_token = info.context.access_token
-        if not access_token:
-            raise HTTPException(status_code=403, detail='Not authenticated')
-
         jti = tokens.decode_access_token(access_token).jti
-        print(f'JTI = {jti}')
         crud_refresh_token.refresh_token.revoke(jti=jti)
         return Message(message='User sign out successfully')
     else:
-        access_token = info.context.access_token
-        if not access_token:
-            raise HTTPException(status_code=403, detail='Not authenticated')
-
-        crud_refresh_token.refresh_token.revoke_all_for_user(user_id=info.context.current_user.id)
+        crud_refresh_token.refresh_token.revoke_all_for_user(user_id=info.context['request'].current_user.id)
         return Message(message='User sign out successfully')
 
 
@@ -89,12 +80,10 @@ def user_sign_up(input: SignUpInput, info: Info) -> Optional[Authentication]:
                               me=User.from_pydantic(db_obj))
 
 
-
-
 @strawberry.type
 class Mutation:
     """Authentication mutation fields."""
     signup = strawberry.field(resolver=user_sign_up, description='Signup mutation with JWT tokens.')
     signin = strawberry.field(resolver=user_sign_in, description='JWT signin mutation for users.')
-    signout = strawberry.field(resolver=user_sign_out, description='Refresh tokens revoking mutation.')
-    update_token = strawberry.field(resolver=new_token_pair, description='JWT tokens updating mutation.')
+    signout = strawberry.field(resolver=user_sign_out, description='Refresh tokens revoking mutation.', permission_classes=[IsAuthenticated])
+    update_token = strawberry.field(resolver=new_token_pair, description='JWT tokens updating mutation.', permission_classes=[IsAuthenticated])

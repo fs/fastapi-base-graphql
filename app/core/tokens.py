@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-from pydantic.error_wrappers import ErrorWrapper
 
 from app.core.config import settings
 from app.core.security import generate_hash_for_jti
@@ -13,15 +12,12 @@ from app.schemas import RefreshTokenCreate, AccessTokenPayload, RefreshTokenPayl
 
 
 def encode_access_token(user_id: int, jti: str) -> str:
-    payload = {
-        'exp': datetime.utcnow() + settings.JWT_SETTINGS['ACCESS_TOKEN_EXPIRATION_DELTA'],
-        'iat': datetime.utcnow(),
-        'scope': 'access_token',
+    payload = AccessTokenPayload.parse_obj({
         'user_id': str(user_id),
         'jti': jti
-    }
+    })
     return jwt.encode(
-        payload,
+        payload.dict(),
         settings.JWT_SETTINGS['JWT_SECRET_KEY'],
         settings.JWT_SETTINGS['JWT_ALGORITHM']
     )
@@ -39,15 +35,12 @@ def decode_access_token(token: str) -> AccessTokenPayload:
 
 
 def encode_refresh_token(user_id: int, jti: str) -> str:
-    payload = {
-        'exp': datetime.utcnow() + settings.JWT_SETTINGS['REFRESH_TOKEN_EXPIRATION_DELTA'],
-        'iat': datetime.utcnow(),
-        'scope': 'refresh_token',
+    payload = RefreshTokenPayload.parse_obj({
         'user_id': str(user_id),
         'jti': jti
-    }
+    })
     return jwt.encode(
-        payload,
+        payload.dict(),
         settings.JWT_SETTINGS['JWT_SECRET_KEY'],
         algorithm=settings.JWT_SETTINGS['JWT_ALGORITHM']
     )

@@ -1,37 +1,30 @@
-from typing import Literal
-
 from pydantic import BaseModel, validator
 from datetime import datetime
 from app.crud.crud_refresh_token import refresh_token
+from app.core.config import settings
 
 
-class AccessTokenPayload(BaseModel):
-    iat: datetime
-    exp: datetime
-    scope: Literal['access_token']
+class TokenPayloadBase(BaseModel):
+    iat: datetime = datetime.now()
+    exp: datetime = datetime.now() + settings.JWT_SETTINGS['REFRESH_TOKEN_EXPIRATION_DELTA']
     user_id: int
     jti: str
 
     @validator('jti')
     def is_revoked(cls, value):
         db_obj = refresh_token.get_by_jti(jti=value)
-        if db_obj.revoked_at:
-            raise ValueError('This access token has been revoked')
-        else:
+        if not db_obj:
             return value
 
-
-class RefreshTokenPayload(BaseModel):
-    iat: datetime
-    exp: datetime
-    scope: Literal['refresh_token']
-    user_id: int
-    jti: str
-
-    @validator('jti')
-    def is_revoked(cls, value):
-        db_obj = refresh_token.get_by_jti(jti=value)
         if db_obj.revoked_at:
-            raise ValueError('This refresh token has been revoked')
-        else:
-            return value
+            raise ValueError('This token has been revoked')
+
+        return value
+
+
+class AccessTokenPayload(TokenPayloadBase):
+    scope: str = 'access_token'
+
+
+class RefreshTokenPayload(TokenPayloadBase):
+    scope: str = 'refresh_token'
