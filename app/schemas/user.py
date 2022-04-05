@@ -40,7 +40,8 @@ class UserInDBBase(UserBase):
 
 # Additional properties to return via API
 class User(UserInDBBase):
-    pass
+    id: int
+    email: EmailStr
 
 
 # Additional properties stored in DB

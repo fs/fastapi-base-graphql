@@ -1,18 +1,17 @@
+from typing import Optional
+
 import strawberry
+from strawberry.types import Info
 
-from app.db.session import session
-from app.graphql.types.users import UserType
-from app.models import User
+from app.graphql.types.users import User
 
 
-def get_users() -> list[UserType]:
-    """Get all users."""
-    users = session.query(User).all()
-    return [UserType.from_pydantic(user) for user in users]
+def get_current_user(info: Info) -> Optional[User]:
+    return User.from_pydantic(info.context.current_user)
 
 
 @strawberry.type
 class Query:
     """User query fields."""
 
-    users = strawberry.field(resolver=get_users)
+    me = strawberry.field(resolver=get_current_user, description='Current User model query')

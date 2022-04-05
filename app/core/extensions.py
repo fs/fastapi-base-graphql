@@ -25,7 +25,7 @@ def current_user(request: Request) -> Optional[User]:
     if not token:
         return None
 
-    user_id = tokens.decode_access_token(token)['user_id']
+    user_id = tokens.decode_access_token(token).user_id
     user_obj = crud_user.user.get(user_id)
     return user_obj
 
@@ -35,7 +35,7 @@ def authenticated(request: Request) -> bool:
     if not token:
         return False
 
-    refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token)['jti'])
+    refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
     if not refresh_token:
         return False
     elif refresh_token.revoked_at:

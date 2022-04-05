@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from pydantic.error_wrappers import ErrorWrapper
 
 from app.core.config import settings
 from app.core.security import generate_hash_for_jti
@@ -8,7 +9,7 @@ from datetime import datetime
 import jwt
 
 from app.models.refresh_token import RefreshToken
-from app.schemas import RefreshTokenCreate
+from app.schemas import RefreshTokenCreate, AccessTokenPayload, RefreshTokenPayload
 
 
 def encode_access_token(user_id: int, jti: str) -> str:
@@ -26,16 +27,15 @@ def encode_access_token(user_id: int, jti: str) -> str:
     )
 
 
-def decode_access_token(token: str) -> dict:
+def decode_access_token(token: str) -> AccessTokenPayload:
     try:
-        payload = jwt.decode(token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
+        payload = AccessTokenPayload.parse_obj(jwt.decode(token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']]))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Token expired')
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e.args[0][0].exc))
 
-    if payload['scope'] == 'access_token':
-        return payload
-    else:
-        raise HTTPException(status_code=401, detail='Scope for the token is invalid')
+    return payload
 
 
 def encode_refresh_token(user_id: int, jti: str) -> str:
@@ -55,25 +55,24 @@ def encode_refresh_token(user_id: int, jti: str) -> str:
 
 def new_token_pair(refresh_token: str) -> tuple[str, RefreshToken]:
     try:
-        payload = jwt.decode(refresh_token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']])
+        payload = RefreshTokenPayload.parse_obj(jwt.decode(refresh_token, settings.JWT_SETTINGS['JWT_SECRET_KEY'], algorithms=[settings.JWT_SETTINGS['JWT_ALGORITHM']]))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail='Refresh token expired')
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e.args[0][0].exc))
 
-    if payload['scope'] == 'refresh_token':
-        user_id = payload['user_id']
-        db_obj = crud_rt.get_by_jti(jti=payload['jti'])
-        if not db_obj.revoked_at:
-            crud_rt.revoke(jti=payload['jti'])
-            jti = generate_hash_for_jti(user_id, datetime.now())
-            new_access_token = encode_access_token(user_id, jti)
-            new_refresh_token = encode_refresh_token(user_id, jti)
-            new_obj = crud_rt.create(obj_in=RefreshTokenCreate.parse_obj({
-                'user_id': user_id,
-                'jti': jti,
-                'token': new_refresh_token
-            }))
-            return new_access_token, new_obj
-        else:
-            raise HTTPException(status_code=401, detail='This token has been revoked')
+    user_id = payload.user_id
+    db_obj = crud_rt.get_by_jti(jti=payload.jti)
+    if not db_obj.revoked_at:
+        crud_rt.revoke(jti=payload.jti)
+        jti = generate_hash_for_jti(user_id, datetime.now())
+        new_access_token = encode_access_token(user_id, jti)
+        new_refresh_token = encode_refresh_token(user_id, jti)
+        new_obj = crud_rt.create(obj_in=RefreshTokenCreate.parse_obj({
+            'user_id': user_id,
+            'jti': jti,
+            'token': new_refresh_token
+        }))
+        return new_access_token, new_obj
     else:
-        raise HTTPException(status_code=401, detail='Invalid scope for token')
+        raise HTTPException(status_code=401, detail='This token has been revoked')

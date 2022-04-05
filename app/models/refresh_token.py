@@ -6,9 +6,6 @@ from app.db.base_class import Base
 
 
 class RefreshToken(Base):
-
-    __tablename__ = 'refresh_tokens'
-
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     jti = Column(String)
     token = Column(String)

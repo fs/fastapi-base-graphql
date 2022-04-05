@@ -3,7 +3,6 @@ from strawberry.fastapi import GraphQLRouter, BaseContext
 from starlette.requests import Request
 from starlette.responses import Response
 
-import app.graphql.mutations.users
 import app.graphql.queries.users
 import app.graphql.mutations.authentication
 from app.core import extensions
@@ -19,14 +18,13 @@ class Query(
 
 @strawberry.type
 class Mutation(
-    app.graphql.mutations.users.Mutation,
     app.graphql.mutations.authentication.Mutation,
 ):
     """Main mutation type class."""
 
 
 class CustomContext(BaseContext):
-    def __init__(self, request: Request, response: Response):
+    def __init__(self, request: Request):
         super().__init__()
         if request:
             self.current_user = extensions.current_user(request)
@@ -34,8 +32,8 @@ class CustomContext(BaseContext):
             self.access_token = extensions.access_token(request)
 
 
-def custom_context_dependency(request: Request = None, response: Response = None) -> CustomContext:
-    return CustomContext(request, response)
+def custom_context_dependency(request: Request = None) -> CustomContext:
+    return CustomContext(request)
 
 
 async def get_context(
