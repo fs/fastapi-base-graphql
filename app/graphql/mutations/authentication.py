@@ -49,7 +49,7 @@ def user_sign_out(input: SignOutInput, info: Info) -> SignOutType:
         if not access_token:
             raise HTTPException(status_code=403, detail='Not authenticated')
 
-        jti = tokens.decode_access_token(access_token)['jti']
+        jti = tokens.decode_access_token(access_token).jti
         crud_refresh_token.refresh_token.revoke(jti)
         return SignOutType(message='User sign out successfully')
     else:

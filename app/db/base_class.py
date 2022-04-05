@@ -1,5 +1,4 @@
-from typing import Any
-
+import inflection
 from sqlalchemy import Column, Integer
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
@@ -14,4 +13,4 @@ class Base:
 
     @declared_attr
     def __tablename__(cls) -> str:  # noqa: N805
-        return cls.__name__.lower()
+        return inflection.underscore(cls.__name__) + 's'

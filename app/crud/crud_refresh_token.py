@@ -40,11 +40,11 @@ class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUp
     def get_by_jti(self, *, jti: str) -> RefreshToken:
         return session.query(RefreshToken).filter(RefreshToken.jti == jti).first()
 
-    def revoke(self, *, jti: str) -> NoReturn:
+    def revoke(self, *, jti: str) -> None:
         db_obj = self.get_by_jti(jti=jti)
         self.update(db_obj=db_obj, obj_in={'revoked_at': datetime.now()})
 
-    def revoke_all_for_user(self, *, user_id: int) -> NoReturn:
+    def revoke_all_for_user(self, *, user_id: int) -> None:
         all_tokens = self.get_all_by_user_id(user_id=user_id)
         jtis = [token.jti for token in all_tokens]
         session.query(RefreshToken).filter(RefreshToken.jti.in_(jtis)).update({'revoked_at': datetime.now()})
