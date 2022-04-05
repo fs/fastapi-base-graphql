@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     JWT_SETTINGS = {
         'REFRESH_TOKEN_EXPIRATION_DELTA': timedelta(days=30),
         'ACCESS_TOKEN_EXPIRATION_DELTA': timedelta(hours=1),
-        'JWT_AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+        'JWT_AUTH_HEADER_NAME': 'AUTHORIZATION',
         'JWT_AUTH_HEADER_PREFIX': 'Bearer',
         'JWT_REFRESH_TOKEN_COOKIE_NAME': 'refreshToken',
         'JWT_SECRET_KEY': os.getenv('SECRET_KEY'),

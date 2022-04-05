@@ -86,9 +86,7 @@ def user_sign_up(input: SignUpInput, info: Info) -> Optional[Authentication]:
             'token': refresh_token
         }))
         return Authentication(access_token=access_token, refresh_token=refresh_token,
-                              me=User.from_pydantic(db_obj))
-
-
+                              me=User.from_instance(db_obj))
 
 
 @strawberry.type

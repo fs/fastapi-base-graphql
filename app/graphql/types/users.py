@@ -3,11 +3,11 @@ from typing import Optional
 
 import strawberry
 from app.graphql.core.types import BaseType
-from app.models.user import User
+from app.models.user import User as UserModel
 
 
 @strawberry.type
-class UserType(BaseType):
+class User(BaseType):
     """Common user type."""
 
     id: int
@@ -17,5 +17,5 @@ class UserType(BaseType):
     is_superuser: bool
 
     class Meta:
-        model = User
+        model = UserModel
         exclude_fields = ('password',)
