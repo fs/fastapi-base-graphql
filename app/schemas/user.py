@@ -1,4 +1,4 @@
-# flake8: noqa WPS123
+# flake8: noqa
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
