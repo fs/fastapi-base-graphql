@@ -1,11 +1,11 @@
+# flake8: noqa WPS123
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
 
-# Shared properties
 class UserBase(BaseModel):
-    """Base user pydantic model."""
+    """Base user pydantic model with shared properties."""
 
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
@@ -13,9 +13,8 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
 
 
-# Properties to receive via API on creation
 class UserCreate(UserBase):
-    """Model for user creation."""
+    """Properties to receive via creation mutation."""
 
     email: EmailStr
     password: str
@@ -29,12 +28,10 @@ class UserUpdate(UserBase):
 
 
 class SignInUser(BaseModel):
+    """Sign in user models."""
+
     email: EmailStr
     password: str
-
-
-class UserToken(BaseModel):
-    access_token: str
 
 
 class UserInDBBase(UserBase):
@@ -48,7 +45,7 @@ class UserInDBBase(UserBase):
 
 class User(UserInDBBase):
     """Additional properties to return via API."""
-    
+
     id: int
     email: EmailStr
 

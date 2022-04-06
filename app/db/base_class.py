@@ -13,4 +13,4 @@ class Base:
     @declared_attr
     def __tablename__(cls) -> str:  # noqa: N805
         """Generate __tablename__ automatically."""
-        return inflection.underscore(cls.__name__) + 's'
+        return '{name}s'.format(name=inflection.underscore(cls.__name__))
