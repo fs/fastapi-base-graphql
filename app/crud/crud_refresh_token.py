@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any, NoReturn, List
+from typing import Union, Dict, Any, List
 from datetime import datetime
 from sqlalchemy import and_
 

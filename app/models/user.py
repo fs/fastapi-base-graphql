@@ -12,3 +12,4 @@ class User(Base):
     is_superuser: bool = Column(Boolean(), default=False)
 
     refresh_tokens = relationship('RefreshToken', back_populates='user')
+    activities = relationship('Activity', back_populates='user')

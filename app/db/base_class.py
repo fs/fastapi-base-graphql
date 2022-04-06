@@ -13,4 +13,7 @@ class Base:
 
     @declared_attr
     def __tablename__(cls) -> str:  # noqa: N805
+        if cls.__name__[-1] == 'y':
+            name = cls.__name__[:-1] + 'ies'
+            return inflection.underscore(name)
         return inflection.underscore(cls.__name__) + 's'
