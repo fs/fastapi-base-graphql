@@ -1,8 +1,8 @@
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 
-import app.graphql.queries.users
 import app.graphql.mutations.authentication
+import app.graphql.queries.users
 from app.core.extensions import CurrentUserExtension
 
 
@@ -23,9 +23,7 @@ class Mutation(
 schema = strawberry.Schema(
     query=Query,
     mutation=Mutation,
-    extensions=[CurrentUserExtension]
+    extensions=[CurrentUserExtension],
 )
 
-graphql_app = GraphQLRouter(
-    schema
-)
+graphql_app = GraphQLRouter(schema)

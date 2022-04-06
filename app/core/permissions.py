@@ -10,9 +10,12 @@ from app.crud import crud_refresh_token
 
 
 class IsAuthenticated(BasePermission):
-    message = "User is not authenticated"
+    """Permission for check request is authenticated."""
+
+    message = 'User is not authenticated'
 
     def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
+        """Get access token from request and check revocation."""
         request: Union[Request, WebSocket] = info.context['request']
 
         token = request.access_token
@@ -20,9 +23,4 @@ class IsAuthenticated(BasePermission):
             return False
 
         refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
-        if refresh_token and not refresh_token.revoked_at:
-            return True
-
-        return False
-
-
+        return refresh_token is not None and not refresh_token.revoked_at

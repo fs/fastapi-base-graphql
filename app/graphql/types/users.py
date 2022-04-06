@@ -1,5 +1,3 @@
-from typing import Optional
-
 import strawberry
 
 from app.schemas import User as UserDB

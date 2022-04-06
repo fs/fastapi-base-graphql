@@ -1,0 +1,25 @@
+version: "3.4"
+
+services:
+
+    db:
+      image: postgres:12-alpine
+      env_file:
+        - "config/.env"
+
+    web:
+      build:
+        context: .
+        dockerfile: docker/fastapi/Dockerfile
+      command: poetry run gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+      environment:
+        - POSTGRES_HOST=db
+        - REDIS_HOST=redis
+      ports:
+        - "8000:8000"
+      depends_on:
+        - db
+        - redis
+
+    redis:
+      image: redis:6.2-alpine
