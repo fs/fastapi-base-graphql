@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from strawberry.types import Info
 
 from app.core import security, settings, tokens
+from app.core.permissions import IsAuthenticated
 from app.crud import crud_refresh_token, crud_user
 from app.graphql.inputs.authentication import (
     SignInInput,
@@ -38,11 +39,8 @@ def user_sign_in(input: SignInInput, info: Info) -> Optional[Authentication]:
 
 
 def new_token_pair(info: Info) -> Optional[Authentication]:
-    """Update tokens pair by given refresh token."""
-    if not info.context.authenticated:
-        raise HTTPException(status_code=403, detail='Not authenticated')
-
-    refresh_token = info.context.request.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
+    """Update tokens pair for authenticated user."""
+    refresh_token = info.context['request'].cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
     if not refresh_token:
         raise HTTPException(status_code=401, detail='Refresh token was not provided')
 
@@ -56,7 +54,7 @@ def new_token_pair(info: Info) -> Optional[Authentication]:
 
 def user_sign_out(input: SignOutInput, info: Info) -> Optional[Message]:
     """Destroy session or all sessions for user."""
-    access_token = info.context.access_token
+    access_token = info.context['request'].access_token
     if not access_token:
         raise HTTPException(status_code=403, detail='Not authenticated')
 
@@ -102,5 +100,13 @@ class Mutation:
 
     signup = strawberry.field(resolver=user_sign_up, description='Signup mutation with JWT tokens.')
     signin = strawberry.field(resolver=user_sign_in, description='JWT signin mutation for users.')
-    signout = strawberry.field(resolver=user_sign_out, description='Refresh tokens revoking mutation.')
-    update_token = strawberry.field(resolver=new_token_pair, description='JWT tokens updating mutation.')
+    signout = strawberry.field(
+        resolver=user_sign_out,
+        description='Refresh tokens revoking mutation.',
+        permission_classes=[IsAuthenticated],
+    )
+    update_token = strawberry.field(
+        resolver=new_token_pair,
+        description='JWT tokens updating mutation.',
+        permission_classes=[IsAuthenticated],
+    )

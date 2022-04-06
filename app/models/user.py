@@ -11,6 +11,5 @@ class User(Base):
     email: str = Column(String, unique=True, index=True, nullable=False)
     password: str = Column(String, nullable=False)
     is_active: bool = Column(Boolean(), default=True)
-    is_superuser: bool = Column(Boolean(), default=False)
 
     refresh_tokens = relationship('RefreshToken', back_populates='user')

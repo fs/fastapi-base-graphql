@@ -15,17 +15,14 @@ from app.schemas import (
 
 
 def encode_access_token(user_id: int, jti: str) -> str:
-    """Make jwt access token."""
-    payload = {
-        'exp': datetime.utcnow() + settings.ACCESS_TOKEN_EXPIRATION_DELTA,
-        'iat': datetime.utcnow(),
-        'scope': 'access_token',
+    """Make payload by user and jti and encode a payload to the access token."""
+    payload = AccessTokenPayload.parse_obj({
         'user_id': str(user_id),
         'jti': jti,
-    }
+    })
     return jwt.encode(
-        payload,
-        settings.SECRET_KEY,
+        payload.dict(),
+        settings.JWT_SECRET_KEY,
         settings.JWT_ALGORITHM,
     )
 
@@ -59,17 +56,14 @@ def decode_refresh_token(refresh_token: str) -> RefreshTokenPayload:
 
 
 def encode_refresh_token(user_id: int, jti: str) -> str:
-    """Make JWT refresh token."""
-    payload = {
-        'exp': datetime.utcnow() + settings.REFRESH_TOKEN_EXPIRATION_DELTA,
-        'iat': datetime.utcnow(),
-        'scope': 'refresh_token',
+    """Make payload by user and jti and encode a payload to the refresh token."""
+    payload = RefreshTokenPayload.parse_obj({
         'user_id': str(user_id),
         'jti': jti,
-    }
+    })
     return jwt.encode(
-        payload,
-        settings.SECRET_KEY,
+        payload.dict(),
+        settings.JWT_SECRET_KEY,
         algorithm=settings.JWT_ALGORITHM,
     )
 

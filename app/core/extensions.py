@@ -1,15 +1,16 @@
+from contextlib import suppress
 from typing import Optional
 
+from fastapi import HTTPException
 from starlette.requests import Request
+from strawberry.extensions import Extension
 
-from app.core import tokens
-from app.core.config import settings
-from app.crud import crud_refresh_token, crud_user
-from app.models import User
+from app.core import settings, tokens
+from app.crud import crud_user
 
 
-def access_token(request: Request) -> Optional[str]:
-    """Get access token from request headers."""
+def get_access_token_from_request(request: Request) -> Optional[str]:
+    """Retrieve access from request headers."""
     authorization_header = request.headers.get(settings.JWT_AUTH_HEADER_NAME.lower())
     if not authorization_header:
         return None
@@ -21,21 +22,18 @@ def access_token(request: Request) -> Optional[str]:
     return auth[1]
 
 
-def current_user(request: Request) -> Optional[User]:
-    """Find current user."""
-    token = access_token(request)
-    if not token:
-        return None
+class CurrentUserExtension(Extension):
+    """Link current authenticated user to request."""
 
-    user_id = tokens.decode_access_token(token).user_id
-    return crud_user.user.get(user_id)
+    def on_request_start(self):
+        """Call before query and mutation, setting user instance and access token."""
+        request = self.execution_context.context['request']
+        token = get_access_token_from_request(request)
+        user_obj = None
+        with suppress(HTTPException):
+            if token:
+                user_id = tokens.decode_access_token(token).user_id
+                user_obj = crud_user.user.get(user_id)
 
-
-def authenticated(request: Request) -> bool:
-    """Check token availability."""
-    token = access_token(request)
-    if not token:
-        return False
-
-    refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
-    return refresh_token is not None and not refresh_token.revoked_at
+        setattr(request, 'current_user', user_obj)
+        setattr(request, 'access_token', token if user_obj else None)
