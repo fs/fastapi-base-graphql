@@ -28,19 +28,3 @@ class IsAuthenticated(BasePermission):
         return True
 
 
-class IsAdmin(BasePermission):
-    message = "User doesn't have admin permissions"
-
-    def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
-        request: Union[Request, WebSocket] = info.context['request']
-
-        user_obj = request.current_user
-        if not user_obj:
-            return False
-
-        if user_obj.is_superuser:
-            return True
-
-        return False
-
-
