@@ -1,0 +1,20 @@
+version: v1.0
+name: Deploy to Heroku
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Deploy
+    task:
+      secrets:
+        - name: python-base-secrets
+      env_vars:
+        - name: HEROKU_APP_NAME
+          value: 'fastapi-base-graphql'
+      jobs:
+        - name: Deploy to Heroku
+          commands:
+            - checkout --use-cache
+            - heroku git:remote -a $HEROKU_APP_NAME
+            - 'git push heroku -f $SEMAPHORE_GIT_BRANCH:master'

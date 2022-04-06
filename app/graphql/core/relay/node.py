@@ -8,7 +8,7 @@ GenericType = TypeVar('GenericType')
 
 @strawberry.type
 class Connection(Generic[GenericType]):
-    """Represents a paginated relationship between two entities
+    """Represents a paginated relationship between two entities.
 
     This pattern is used when the relationship itself has attributes.
     In a Facebook-based domain example, a friendship between two people
@@ -21,7 +21,7 @@ class Connection(Generic[GenericType]):
 
 @strawberry.type
 class PageInfo:
-    """Pagination context to navigate objects with cursor-based pagination
+    """Pagination context to navigate objects with cursor-based pagination.
 
     Instead of classic offset pagination via `page` and `limit` parameters,
     here we have a cursor of the last object and we fetch items starting from that one
@@ -39,7 +39,7 @@ class PageInfo:
 
 @strawberry.type
 class Edge(Generic[GenericType]):
-    """An edge may contain additional information of the relationship. This is the trivial case"""
+    """An edge may contain additional information of the relationship. This is the trivial case."""
 
     node: GenericType
     cursor: str
@@ -47,7 +47,8 @@ class Edge(Generic[GenericType]):
     @classmethod
     def build_cursor(cls):
         """Build base64 encoded node cursor."""
-        nodeid = f'{id(cls.node)}'.encode('utf-8')
+        node_instance_address = id(cls.node)
+        nodeid = f'{node_instance_address}'.encode('utf-8')
         return base64.b64encode(nodeid).decode()
 
 
