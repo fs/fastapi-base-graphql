@@ -9,20 +9,20 @@ from app.db.session import session
 
 
 class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUpdate]):
-    def create(self, *, obj_in: RefreshTokenCreate) -> RefreshToken:
+    async def create(self, *, obj_in: RefreshTokenCreate) -> RefreshToken:
         db_obj = RefreshToken(
             user_id=obj_in.user_id,
             jti=obj_in.jti,
             token=obj_in.token
         )
 
-        session.add(db_obj)
-        session.commit()
-        session.refresh(db_obj)
+        await session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
 
         return db_obj
 
-    def update(
+    async def update(
             self,
             *,
             db_obj: RefreshToken,
@@ -33,23 +33,23 @@ class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUp
         else:
             update_data = obj_in.dict(exclude_unset=True)
 
-        return super().update(db_obj=db_obj, obj_in=update_data)
+        return await super().update(db_obj=db_obj, obj_in=update_data)
 
-    def get_all_by_user_id(self, *, user_id: int) -> List[RefreshToken]:
-        return session.query(RefreshToken).filter(RefreshToken.user_id == user_id).all()
+    async def get_all_by_user_id(self, *, user_id: int) -> List[RefreshToken]:
+        return await session.query(RefreshToken).filter(RefreshToken.user_id == user_id).all()
 
-    def get_by_jti(self, *, jti: str) -> RefreshToken:
-        return session.query(RefreshToken).filter(RefreshToken.jti == jti).first()
+    async def get_by_jti(self, *, jti: str) -> RefreshToken:
+        return await session.query(RefreshToken).filter(RefreshToken.jti == jti).first()
 
-    def revoke(self, *, jti: str) -> None:
-        db_obj = self.get_by_jti(jti=jti)
-        self.update(db_obj=db_obj, obj_in={'revoked_at': datetime.now()})
+    async def revoke(self, *, jti: str) -> None:
+        db_obj = await self.get_by_jti(jti=jti)
+        await self.update(db_obj=db_obj, obj_in={'revoked_at': datetime.now()})
 
-    def revoke_all_for_user(self, *, user_id: int) -> None:
-        all_tokens = self.get_all_by_user_id(user_id=user_id)
+    async def revoke_all_for_user(self, *, user_id: int) -> None:
+        all_tokens = await self.get_all_by_user_id(user_id=user_id)
         jtis = [token.jti for token in all_tokens]
-        session.query(RefreshToken).filter(and_(RefreshToken.jti.in_(jtis), RefreshToken.revoked_at.is_(None))).update({'revoked_at': datetime.now()})
-        session.commit()
+        await session.query(RefreshToken).filter(and_(RefreshToken.jti.in_(jtis), RefreshToken.revoked_at.is_(None))).update({'revoked_at': datetime.now()})
+        await session.commit()
 
 
 refresh_token = CRUDRefreshToken(RefreshToken)

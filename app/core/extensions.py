@@ -20,22 +20,22 @@ def access_token(request: Request) -> Optional[str]:
     return auth[1]
 
 
-def current_user(request: Request) -> Optional[User]:
+async def current_user(request: Request) -> Optional[User]:
     token = access_token(request)
     if not token:
         return None
 
     user_id = tokens.decode_access_token(token).user_id
-    user_obj = crud_user.user.get(user_id)
+    user_obj = await crud_user.user.get(user_id)
     return user_obj
 
 
-def authenticated(request: Request) -> bool:
+async def authenticated(request: Request) -> bool:
     token = access_token(request)
     if not token:
         return False
 
-    refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
+    refresh_token = await crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
     if not refresh_token:
         return False
     elif refresh_token.revoked_at:

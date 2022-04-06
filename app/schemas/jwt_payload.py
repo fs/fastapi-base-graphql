@@ -13,8 +13,8 @@ class AccessTokenPayload(BaseModel):
     jti: str
 
     @validator('jti')
-    def is_revoked(cls, value):
-        db_obj = refresh_token.get_by_jti(jti=value)
+    async def is_revoked(cls, value):
+        db_obj = await refresh_token.get_by_jti(jti=value)
         if db_obj.revoked_at:
             raise ValueError('This access token has been revoked')
         else:
@@ -29,8 +29,8 @@ class RefreshTokenPayload(BaseModel):
     jti: str
 
     @validator('jti')
-    def is_revoked(cls, value):
-        db_obj = refresh_token.get_by_jti(jti=value)
+    async def is_revoked(cls, value):
+        db_obj = await refresh_token.get_by_jti(jti=value)
         if db_obj.revoked_at:
             raise ValueError('This refresh token has been revoked')
         else:

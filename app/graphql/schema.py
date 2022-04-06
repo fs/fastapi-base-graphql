@@ -1,11 +1,12 @@
+import asyncio
+
 import strawberry
 from strawberry.fastapi import GraphQLRouter, BaseContext
 from starlette.requests import Request
-from starlette.responses import Response
 
 import app.graphql.queries.users
 import app.graphql.mutations.authentication
-from app.core import extensions
+from app.core.extensions import current_user, authenticated, access_token
 from fastapi import Depends
 
 
@@ -27,9 +28,9 @@ class CustomContext(BaseContext):
     def __init__(self, request: Request):
         super().__init__()
         if request:
-            self.current_user = extensions.current_user(request)
-            self.authenticated = extensions.authenticated(request)
-            self.access_token = extensions.access_token(request)
+            self.current_user = asyncio.run(current_user(request))
+            self.authenticated = asyncio.run(authenticated(request))
+            self.access_token = access_token(request)
 
 
 def custom_context_dependency(request: Request = None) -> CustomContext:

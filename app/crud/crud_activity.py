@@ -8,20 +8,20 @@ from app.schemas.user_activity import UserActivityCreate, UserActivityUpdate
 from app.db.session import session
 
 
-class CRUDActivity(CRUDBase[UserActivity, UserActivityCreate, UserActivityUpdate]):
-    def create(self, *, obj_in: UserActivityCreate) -> UserActivity:
+class CRUDUserActivity(CRUDBase[UserActivity, UserActivityCreate, UserActivityUpdate]):
+    async def create(self, *, obj_in: UserActivityCreate) -> UserActivity:
         db_obj = UserActivity(
             user_id=obj_in.user_id,
             event=obj_in.event
         )
 
-        session.add(db_obj)
-        session.commit()
-        session.refresh(db_obj)
+        await session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
 
         return db_obj
 
-    def update(
+    async def update(
         self,
         *,
         db_obj: UserActivity,
@@ -32,13 +32,16 @@ class CRUDActivity(CRUDBase[UserActivity, UserActivityCreate, UserActivityUpdate
         else:
             update_data = obj_in.dict(exclude_unset=True)
 
-        return super().update(db_obj=db_obj, obj_in=update_data)
+        return await super().update(db_obj=db_obj, obj_in=update_data)
 
-    def get_all_user_activities(self, *, user_id) -> List[UserActivity]:
-        return session.query(UserActivity).filter(UserActivity.user_id == user_id).all()
+    async def get_all_user_activities(self, *, user_id) -> List[UserActivity]:
+        return await session.query(UserActivity).filter(UserActivity.user_id == user_id).all()
 
-    def get_all_activities_by_type(self, *, activity_type: UserActivityTypeEnum) -> List[UserActivity]:
-        return session.query(UserActivity).filter(UserActivity.event == activity_type).all()
+    async def get_all_activities_by_type(self, *, activity_type: UserActivityTypeEnum) -> List[UserActivity]:
+        return await session.query(UserActivity).filter(UserActivity.event == activity_type).all()
 
-    def get_user_activities_by_type(self, user_id: int, activity_type: UserActivityTypeEnum) -> List[UserActivity]:
-        return session.query(UserActivity).filter(and_(UserActivity.user_id == user_id, UserActivity.event == activity_type)).all()
+    async def get_user_activities_by_type(self, user_id: int, activity_type: UserActivityTypeEnum) -> List[UserActivity]:
+        return await session.query(UserActivity).filter(and_(UserActivity.user_id == user_id, UserActivity.event == activity_type)).all()
+
+
+user_activity = CRUDUserActivity(UserActivity)
