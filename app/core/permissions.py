@@ -13,34 +13,15 @@ class IsAuthenticated(BasePermission):
     message = "User is not authenticated"
 
     def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
-        request: Union[Request, WebSocket] = info.context['request']
-
-        token = request.access_token
+        #request: Union[Request, WebSocket] = info.context['request']
+        token = info.context['access_token']
+        is_authenticated = False
         if not token:
-            return False
+            return is_authenticated
 
         refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
-        if not refresh_token:
-            return False
-        elif refresh_token.revoked_at:
-            return False
 
-        return True
+        if refresh_token and not refresh_token.revoked_at:
+            is_authenticated = True
 
-
-class IsAdmin(BasePermission):
-    message = "User doesn't have admin permissions"
-
-    def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
-        request: Union[Request, WebSocket] = info.context['request']
-
-        user_obj = request.current_user
-        if not user_obj:
-            return False
-
-        if user_obj.is_superuser:
-            return True
-
-        return False
-
-
+        return is_authenticated

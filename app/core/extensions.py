@@ -11,7 +11,7 @@ from strawberry.extensions import Extension
 
 
 def get_access_token_from_request(request: Request) -> Optional[str]:
-    authorization_header = request.headers.get(settings.JWT_SETTINGS['JWT_AUTH_HEADER_NAME'].lower())
+    authorization_header = request.headers.get(settings.JWT_SETTINGS['JWT_AUTH_HEADER_NAME'])
     if not authorization_header:
         return None
 
@@ -24,15 +24,13 @@ def get_access_token_from_request(request: Request) -> Optional[str]:
 
 class CurrentUserExtension(Extension):
     def on_request_start(self):
-        request = self.execution_context.context['request']
+        context = self.execution_context.context
+        request = context['request']
         token = get_access_token_from_request(request)
+        user_obj = None
         with suppress(HTTPException):
             if token:
                 user_id = tokens.decode_access_token(token).user_id
                 user_obj = crud_user.user.get(user_id)
-                setattr(request, 'current_user', user_obj)
-                setattr(request, 'access_token', token)
-                return
-        setattr(request, 'current_user', None)
-        setattr(request, 'access_token', None)
-
+        context['current_user'] = user_obj
+        context['access_token'] = token
