@@ -10,7 +10,7 @@ class TokenPayloadBase(BaseModel):
     """Token shared properties."""
 
     iat: datetime = datetime.now()
-    exp: datetime = datetime.now() + settings.JWT_SETTINGS['REFRESH_TOKEN_EXPIRATION_DELTA']
+    exp: datetime = datetime.now() + settings.REFRESH_TOKEN_EXPIRATION_DELTA
     user_id: int
     jti: str
 
