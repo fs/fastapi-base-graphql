@@ -6,8 +6,19 @@ from strawberry.arguments import UNSET
 
 
 def resolve_connection(resolver, **kwargs):
-
+    """Resolve connection for query instance."""
+    first = kwargs.get('first')
+    last = kwargs.get('last')
+    after = kwargs.get('after')
+    before = kwargs.get('before')
     list_lenght = resolver().count()
+    if isinstance(first, int):
+        if first < 0:
+            raise ValueError("Argument 'first' must be a non-negative integer.")
+
+    if isinstance(last, int):
+        if last < 0:
+            raise ValueError("Argument 'last' must be a non-negative integer.")
 
 
 def connection(*args, **kwargs):
@@ -38,6 +49,9 @@ def connection_field(
     directives=(),
     init=None,
 ) -> Any:
+
+    if after and before or first and last:
+        raise ValueError('loh pidr')
 
     resolver = connection(resolver)
     field_ = strawberry.field(
