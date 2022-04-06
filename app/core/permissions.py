@@ -20,11 +20,9 @@ class IsAuthenticated(BasePermission):
             return False
 
         refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
-        if not refresh_token:
-            return False
-        elif refresh_token.revoked_at:
-            return False
+        if refresh_token and not refresh_token.revoked_at:
+            return True
 
-        return True
+        return False
 
 

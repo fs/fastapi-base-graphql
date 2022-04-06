@@ -26,13 +26,11 @@ class CurrentUserExtension(Extension):
     def on_request_start(self):
         request = self.execution_context.context['request']
         token = get_access_token_from_request(request)
+        user_obj = None
         with suppress(HTTPException):
             if token:
                 user_id = tokens.decode_access_token(token).user_id
                 user_obj = crud_user.user.get(user_id)
-                setattr(request, 'current_user', user_obj)
-                setattr(request, 'access_token', token)
-                return
-        setattr(request, 'current_user', None)
-        setattr(request, 'access_token', None)
+        setattr(request, 'current_user', user_obj)
+        setattr(request, 'access_token', token)
 
