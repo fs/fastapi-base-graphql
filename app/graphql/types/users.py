@@ -1,4 +1,3 @@
-from re import fullmatch
 from typing import Optional
 
 import strawberry
