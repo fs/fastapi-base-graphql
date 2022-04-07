@@ -34,7 +34,7 @@ celery -A server worker -l DEBUG  # For MacOS\Linux
 
 Run server:
 ```shell
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 ## Run tests
 Run test and quality suits to make sure all dependencies are satisfied and applications works correctly before making changes.

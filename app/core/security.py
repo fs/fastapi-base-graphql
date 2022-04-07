@@ -4,15 +4,16 @@ from datetime import datetime
 
 from passlib.context import CryptContext
 
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Check password hash."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
+    """Generate password hash."""
     return pwd_context.hash(password)
 
 
@@ -24,8 +25,7 @@ def generate_hash(string: str) -> str:
 
 
 def generate_hash_for_jti(user_id: int, created_at: datetime) -> str:
-    """Generation hash with options for unique."""
+    """Generate hash with options for unique."""
     timestamp = timegm(created_at.utctimetuple())
-
     key = f'{user_id}-{timestamp}'
     return generate_hash(key)

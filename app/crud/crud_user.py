@@ -11,9 +11,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     """User CRUD class."""
 
     async def get_by_email(self, *, email: str) -> Optional[User]:
+        """Get user by email equality."""
         return await session.query(User).filter(User.email == email).first()
 
     async def create(self, obj_in: UserCreate) -> User:
+        """Create new user."""
         db_obj = User(
             email=obj_in.email,
             password=get_password_hash(obj_in.password),
@@ -28,17 +30,19 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def update(
         self, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
     ) -> User:
+        """Update user instance fields."""
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
         if update_data['password']:
             hashed_password = get_password_hash(update_data['password'])
-            del update_data['password']
+            update_data.pop('password')
             update_data['hashed_password'] = hashed_password
         return await super().update(db_obj=db_obj, obj_in=update_data)
 
     async def authenticate(self, *, email: str, password: str) -> Optional[User]:
+        """Find user by email and check password."""
         user = await self.get_by_email(email=email)
         if not user:
             return None
@@ -47,9 +51,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user
 
     def is_active(self, user: User) -> bool:
+        """User activity attr."""
         return user.is_active
 
     def is_superuser(self, user: User) -> bool:
+        """User admin permissions attr."""
         return user.is_superuser
 
 

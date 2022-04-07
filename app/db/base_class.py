@@ -9,10 +9,10 @@ class Base:
 
     id: int = Column(Integer, primary_key=True, index=True)
     __name__: str
-    # Generate __tablename__ automatically
 
     @declared_attr
     def __tablename__(cls) -> str:  # noqa: N805
+        """Generate __tablename__ automatically."""
         if cls.__name__[-1] == 'y':
             name = cls.__name__[:-1] + 'ies'
             return inflection.underscore(name)
