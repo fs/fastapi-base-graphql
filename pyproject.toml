@@ -25,6 +25,7 @@ bcrypt = "^3.2.0"
 PyJWT = "^2.3.0"
 uvicorn = {extras = ["standard"], version = "^0.17.6"}
 inflection = "^0.5.1"
+graphql-relay = "3.1.0"
 
 [tool.poetry.dev-dependencies]
 isort = "^4.3.21"
