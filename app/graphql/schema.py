@@ -2,6 +2,7 @@ import strawberry
 from strawberry.fastapi import GraphQLRouter
 
 import app.graphql.mutations.authentication
+import app.graphql.mutations.users
 import app.graphql.queries.users
 from app.core.extensions import CurrentUserExtension
 
@@ -16,7 +17,7 @@ class Query(
 @strawberry.type
 class Mutation(
     app.graphql.mutations.authentication.Mutation,
-    app.graphql.mutations.users.Mutation,
+    # app.graphql.mutations.users.Mutation,
 ):
     """Main mutation type class."""
 

@@ -2,25 +2,21 @@ from typing import Optional
 
 import strawberry
 
-from app.schemas import SignInUser
+from app.schemas import SignInUser, UserCreate
+from app.graphql.core.type import strawberry_pydantic_input, strawberry_input
 
 
-@strawberry.input(description='Signup mutation input.')
+@strawberry_pydantic_input(model=UserCreate, fields=('email', 'full_name', 'password'))
 class SignUpInput:
     """Fields for user sign up mutation."""
 
-    email: Optional[str]
-    first_name: Optional[str]
-    last_name: Optional[str]
-    password: Optional[str]
 
-
-@strawberry.experimental.pydantic.input(model=SignInUser, all_fields=True, description='Sign in mutation input.')
+@strawberry_pydantic_input(model=SignInUser, all_fields=True)
 class SignInInput:
     """Fields for user sign in mutation."""
 
 
-@strawberry.input(description='Sign out mutation input, which revokes all user refresh tokens or current.')
+@strawberry_input
 class SignOutInput:
     """Signout mutation input with everywhere param for logout from all sessions."""
 
