@@ -13,7 +13,7 @@ from app.graphql.inputs.authentication import (
     SignOutInput,
     SignUpInput,
 )
-from app.graphql.types.authentication import Authentication, Message, User
+from app.graphql.types.authentication import Authentication, Message, UserType
 from app.schemas import UserCreate
 from app.schemas.refresh_token import RefreshTokenCreate
 
@@ -35,7 +35,7 @@ def user_sign_in(input: SignInInput, info: Info) -> Optional[Authentication]:
     })
 
     crud_refresh_token.refresh_token.create(obj_in=obj_in)
-    return Authentication(access_token=access_token, refresh_token=refresh_token, me=User.from_pydantic(current_user))
+    return Authentication(access_token=access_token, refresh_token=refresh_token, me=UserType.from_pydantic(current_user))
 
 
 def new_token_pair(info: Info) -> Optional[Authentication]:
@@ -48,7 +48,7 @@ def new_token_pair(info: Info) -> Optional[Authentication]:
     return Authentication(
         access_token=new_access_token,
         refresh_token=new_refresh_token.token,
-        me=User.from_pydantic(new_refresh_token.user),
+        me=UserType.from_pydantic(new_refresh_token.user),
     )
 
 
@@ -90,7 +90,7 @@ def user_sign_up(input: SignUpInput, info: Info) -> Optional[Authentication]:
     return Authentication(
         access_token=access_token,
         refresh_token=refresh_token,
-        me=User.from_pydantic(db_obj),
+        me=UserType.from_pydantic(db_obj),
     )
 
 

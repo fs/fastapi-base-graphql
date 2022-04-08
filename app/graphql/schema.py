@@ -17,7 +17,7 @@ class Query(
 @strawberry.type
 class Mutation(
     app.graphql.mutations.authentication.Mutation,
-    # app.graphql.mutations.users.Mutation,
+    app.graphql.mutations.users.Mutation,
 ):
     """Main mutation type class."""
 

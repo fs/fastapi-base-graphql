@@ -4,12 +4,12 @@ import strawberry
 from strawberry.types import Info
 
 from app.core.permissions import IsAuthenticated
-from app.graphql.types.users import User
+from app.graphql.types.users import UserType
 
 
-def get_current_user(info: Info) -> Optional[User]:
+def get_current_user(info: Info) -> Optional[UserType]:
     """Get pydantic user from context."""
-    return User.from_pydantic(info.context.current_user)
+    return UserType.from_pydantic(info.context.current_user)
 
 
 @strawberry.type

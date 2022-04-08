@@ -20,4 +20,4 @@ class SignInInput:
 class SignOutInput:
     """Signout mutation input with everywhere param for logout from all sessions."""
 
-    everywhere: Optional[bool]
+    everywhere: Optional[bool] = strawberry.field(description='Logout from all devices.')

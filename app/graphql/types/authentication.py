@@ -1,7 +1,7 @@
 from typing import Optional
 
 from app.graphql.core.type import strawberry_type
-from app.graphql.types.users import User
+from app.graphql.types.users import UserType
 
 
 @strawberry_type
@@ -10,7 +10,7 @@ class Authentication:
 
     access_token: Optional[str]
     refresh_token: Optional[str]
-    me: Optional[User]
+    me: Optional[UserType]
 
 
 @strawberry_type

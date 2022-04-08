@@ -27,10 +27,19 @@ def docs_type_wrapper(cls=None, type_func: Optional[Callable] = strawberry.type,
 
 # default strawberry type
 strawberry_type = docs_type_wrapper
+
+# default strawberry input
 strawberry_input = partial(
     docs_type_wrapper,
     type_func=strawberry.type,
     is_input=True,
+)
+
+# experimental strawberry pydantic type
+strawberry_pydantic_type = partial(
+    docs_type_wrapper,
+    type_func=strawberry.experimental.pydantic.type,
+    is_pydantic=True,
 )
 
 # experimental strawberry pydantic input type
