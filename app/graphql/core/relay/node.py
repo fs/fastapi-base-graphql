@@ -3,7 +3,6 @@ from typing import Any, Callable, Generic, Optional, TypeVar
 from functools import wraps
 import strawberry
 
-from app.graphql.types.users import UserType
 from app.db.session import session
 from sqlalchemy.orm import Query
 import strawberry.field
