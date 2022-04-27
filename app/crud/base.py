@@ -24,30 +24,30 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         self.model = model
 
-    def get(self, obj_id: Any) -> Optional[ModelType]:
+    async def get(self, obj_id: Any) -> Optional[ModelType]:
         """Get object by id."""
         query_model = session.query(self.model)
-        return query_model.filter(self.model.id == obj_id).first()
+        return await query_model.filter(self.model.id == obj_id).first()
 
-    def get_multi(
+    async def get_multi(
         self,
         *,
         skip: int = 0,
         limit: int = 100,
     ) -> List[ModelType]:
         """Get queryset of objects."""
-        return session.query(self.model).offset(skip).limit(limit).all()
+        return await session.query(self.model).offset(skip).limit(limit).all()
 
-    def create(self, *, obj_in: CreateSchemaType) -> ModelType:
+    async def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         """Create new object."""
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data)  # type: ignore
-        session.add(db_obj)
-        session.commit()
-        session.refresh(db_obj)
+        await session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
         return db_obj
 
-    def update(
+    async def update(
         self,
         *,
         db_obj: ModelType,
@@ -62,14 +62,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data.get(field, None))
-        session.add(db_obj)
-        session.commit()
-        session.refresh(db_obj)
+        await session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
         return db_obj
 
-    def remove(self, *, obj_id: int) -> ModelType:
+    async def remove(self, *, obj_id: int) -> ModelType:
         """Remove object by id."""
-        db_obj = session.query(self.model).get(obj_id)
-        session.delete(db_obj)
-        session.commit()
+        db_obj = await session.query(self.model).get(obj_id)
+        await session.delete(db_obj)
+        await session.commit()
         return db_obj
