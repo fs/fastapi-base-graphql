@@ -15,9 +15,9 @@ class TokenPayloadBase(BaseModel):
     jti: str
 
     @validator('jti')
-    def is_revoked(cls, value):
+    async def is_revoked(cls, value):
         """Check revocation in database."""
-        db_obj = refresh_token.get_by_jti(jti=value)
+        db_obj = await refresh_token.get_by_jti(jti=value)
         if not db_obj:
             return value
 
