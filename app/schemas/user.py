@@ -16,9 +16,6 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """Properties to receive via creation mutation."""
 
-    first_name: str = Field(description='First name')
-    last_name: str = Field(description='Last name')
-
 
 class UserUpdate(UserBase):
     """ Properties to receive via mutation on update"""

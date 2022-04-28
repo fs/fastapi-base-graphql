@@ -3,6 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.graphql.schema import graphql_app
+from app.db.session import database
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,3 +21,13 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_methods=['*'],
         allow_headers=['*'],
     )
+
+
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()

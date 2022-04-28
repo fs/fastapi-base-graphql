@@ -13,8 +13,8 @@ from app.graphql.inputs.authentication import (
     SignOutInput,
     SignUpInput,
 )
-from app.graphql.types.authentication import Authentication, Message, User
-from app.schemas import UserCreate
+from app.graphql.types.authentication import Authentication, Message
+from app.schemas import User, UserCreate
 from app.schemas.refresh_token import RefreshTokenCreate
 
 
@@ -73,11 +73,7 @@ async def user_sign_up(input: SignUpInput, info: Info) -> Optional[Authenticatio
     if db_user:
         raise ValueError('User with this email was already created')
 
-    db_obj = await crud_user.user.create(obj_in=UserCreate.parse_obj({
-        'email': input.email,
-        'password': input.password,
-        'full_name': f'{input.first_name} {input.last_name}',
-    }))
+    db_obj = await crud_user.user.create(input.to_pydantic())
 
     jti = security.generate_hash_for_jti(db_obj.id, datetime.now())
     access_token = tokens.encode_access_token(db_obj.id, jti)

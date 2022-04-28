@@ -13,4 +13,4 @@ class User(Base):
     is_active: bool = Column(Boolean(), default=True)
 
     refresh_tokens = relationship('RefreshToken', back_populates='user')
-    activities = relationship('Activity', back_populates='user')
+    activities = relationship('UserActivity', back_populates='user')
