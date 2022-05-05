@@ -25,7 +25,7 @@ def get_access_token_from_request(request: Request) -> Optional[str]:
 class CurrentUserExtension(Extension):
     """Link current authenticated user to request."""
 
-    def on_request_start(self):
+    async def on_request_start(self):
         """Call before query and mutation, setting user instance and access token."""
         request = self.execution_context.context['request']
         token = get_access_token_from_request(request)
@@ -33,7 +33,7 @@ class CurrentUserExtension(Extension):
         with suppress(HTTPException):
             if token:
                 user_id = tokens.decode_access_token(token).user_id
-                user_obj = crud_user.user.get(user_id)
+                user_obj = await crud_user.user.get(user_id)
 
         setattr(request, 'current_user', user_obj)
         setattr(request, 'access_token', token if user_obj else None)

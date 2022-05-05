@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
-from sqlalchemy import and_
+from sqlalchemy import and_, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -13,14 +13,9 @@ from app.schemas.refresh_token import RefreshTokenCreate, RefreshTokenUpdate
 class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUpdate]):
     """Database operations for refresh tokens."""
 
-    async def create(self, *, obj_in: RefreshTokenCreate) -> RefreshToken:
-        db_obj = RefreshToken(
-            user_id=obj_in.user_id,
-            jti=obj_in.jti,
-            token=obj_in.token,
-        )
-
-        return db_obj
+    async def create(self, *, obj_in: RefreshTokenCreate) -> int:
+        query = insert(RefreshToken).values(obj_in.dict())
+        return await database.execute(query)
 
     async def update(
             self,
@@ -39,14 +34,17 @@ class CRUDRefreshToken(CRUDBase[RefreshToken, RefreshTokenCreate, RefreshTokenUp
         return await database.query(RefreshToken).filter(RefreshToken.user_id == user_id).all()
 
     async def get_by_jti(self, *, jti: str) -> RefreshToken:
-        return await database.query(RefreshToken).filter(RefreshToken.jti == jti).first()
+        query = select(RefreshToken).filter_by(jti=jti)
+        result = await database.fetch_one(query=query)
+        return self.model(**result) if result else None
 
     async def filter_active_tokens_by_user_id(self, *, user_id: int) -> AsyncSession:
         active_lookup = and_(
             RefreshToken.revoked_at.is_(None),
             RefreshToken.user_id == user_id,
         )
-        return await database.query(RefreshToken).filter(active_lookup)
+        query = select(RefreshToken).filter(active_lookup)
+        return await database.fetch_all(query)
 
     async def revoke(self, *, jti: str) -> None:
         db_obj = await self.get_by_jti(jti=jti)

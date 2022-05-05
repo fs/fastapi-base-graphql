@@ -9,7 +9,8 @@ from app.graphql.types.users import UserType
 
 def get_current_user(info: Info) -> Optional[UserType]:
     """Get pydantic user from context."""
-    return UserType.from_pydantic(info.context.current_user)
+    request = info.context['request']
+    return UserType.from_pydantic(request.current_user)
 
 
 @strawberry.type

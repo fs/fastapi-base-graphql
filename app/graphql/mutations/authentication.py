@@ -35,7 +35,7 @@ async def user_sign_in(input: SignInInput, info: Info) -> Optional[Authenticatio
     })
 
     await crud_refresh_token.refresh_token.create(obj_in=obj_in)
-    return Authentication(access_token=access_token, refresh_token=refresh_token, me=User.from_pydantic(current_user))
+    return Authentication(access_token=access_token, refresh_token=refresh_token, me=User.from_orm(current_user))
 
 
 def new_token_pair(info: Info) -> Optional[Authentication]:
@@ -73,20 +73,20 @@ async def user_sign_up(input: SignUpInput, info: Info) -> Optional[Authenticatio
     if db_user:
         raise ValueError('User with this email was already created')
 
-    db_obj = await crud_user.user.create(input.to_pydantic())
+    db_user = await crud_user.user.create(input.to_pydantic())
 
-    jti = security.generate_hash_for_jti(db_obj.id, datetime.now())
-    access_token = tokens.encode_access_token(db_obj.id, jti)
-    refresh_token = tokens.encode_refresh_token(db_obj.id, jti)
+    jti = security.generate_hash_for_jti(db_user.id, datetime.now())
+    access_token = tokens.encode_access_token(db_user.id, jti)
+    refresh_token = tokens.encode_refresh_token(db_user.id, jti)
     await crud_refresh_token.refresh_token.create(obj_in=RefreshTokenCreate.parse_obj({
-        'user_id': db_obj.id,
+        'user_id': db_user.id,
         'jti': jti,
         'token': refresh_token,
     }))
     return Authentication(
         access_token=access_token,
         refresh_token=refresh_token,
-        me=User.from_pydantic(db_obj),
+        me=User.from_orm(db_user),
     )
 
 

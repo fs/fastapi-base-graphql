@@ -10,10 +10,10 @@ from app.graphql.types.users import UserType
 from app.graphql.core.type import strawberry_type
 
 
-def user_update(input: UpdateUserInput, info: Info) -> Optional[UserType]:
+async def user_update(input: UpdateUserInput, info: Info) -> Optional[UserType]:
     """Destroy session or all sessions for user."""
     current_user = info.context['request'].current_user
-    updated_user = crud_user.user.update(db_obj=current_user, obj_in=input.to_pydantic())
+    updated_user = await crud_user.user.update(db_obj=current_user, obj_in=input.to_pydantic())
     return UserType.from_pydantic(updated_user)
 
 

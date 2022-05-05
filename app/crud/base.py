@@ -2,6 +2,7 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from sqlalchemy import select, insert, update, delete
 
 from app.db.base import Base
 from app.db.session import database
@@ -26,10 +27,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def get(self, obj_id: Any) -> Optional[ModelType]:
         """Get object by id."""
-        query = self.model.filter(self.model.id == obj_id).first()
-        return await database.execute(query=query)
-        # query_model = database.query(self.model)
-        # return await query_model.filter(self.model.id == obj_id).first()
+        query = select(self.model).filter_by(id=obj_id)
+        result = await database.fetch_one(query=query)
+        return self.model(**result)
 
     async def get_multi(
         self,
@@ -38,16 +38,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         limit: int = 100,
     ) -> List[ModelType]:
         """Get queryset of objects."""
-        return await database.query(self.model).offset(skip).limit(limit).all()
+        query = select(self.model).offset(skip).limit(limit)
+        result = await database.fetch_all(query=query)
+        return [self.model(instance) for instance in result]
 
     async def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         """Create new object."""
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)  # type: ignore
-        # await session.add(db_obj)
-        # await session.commit()
-        # await session.refresh(db_obj)
-        return db_obj
+        values = obj_in.dict()
+        instance = self.model(**values)
+        query = insert(self.model).values(**values)
+        instance.id = await database.execute(query=query)
+        return instance
 
     async def update(
         self,
@@ -61,17 +62,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        for field in obj_data:
-            if field in update_data:
-                setattr(db_obj, field, update_data.get(field, None))
-        # await session.add(db_obj)
-        # await session.commit()
-        # await session.refresh(db_obj)
-        return db_obj
+        query = update(self.model).filter_by(id=db_obj.id).values(**update_data)
+        return await database.execute(query=query)
 
     async def remove(self, *, obj_id: int) -> ModelType:
         """Remove object by id."""
-        # db_obj = await session.query(self.model).get(obj_id)
-        # await session.delete(db_obj)
-        # await session.commit()
-        # return db_obj
+        query = delete(self.model).filter_by(id=obj_id)
+        return await database.execute(query=query)

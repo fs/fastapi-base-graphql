@@ -21,6 +21,7 @@ class UserUpdate(UserBase):
     """ Properties to receive via mutation on update"""
 
     password: Optional[str] = Field(description='New password for user.')
+    avatar_file_id: Optional[str] = Field(description='Avatar AWS file id')
 
 
 class SignInUser(BaseModel):

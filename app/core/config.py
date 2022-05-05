@@ -2,7 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator, Field
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     JWT_AUTH_HEADER_PREFIX: str = 'Bearer'
     JWT_REFRESH_TOKEN_COOKIE_NAME: str = 'refreshToken'
     SECRET_KEY: str
+    JWT_SECRET_KEY: str = Field(alias='SECRET_KEY')
     JWT_ALGORITHM: str = 'HS256'
     JWT_VERIFY_EXPIRATION: bool = True
     JWT_VERIFY: bool = True

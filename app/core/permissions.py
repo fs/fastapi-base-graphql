@@ -14,7 +14,7 @@ class IsAuthenticated(BasePermission):
 
     message = 'User is not authenticated'
 
-    def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
+    async def has_permission(self, source: Any, info: Info, **kwargs) -> bool:
         """Get access token from request and check revocation."""
         request: Union[Request, WebSocket] = info.context['request']
 
@@ -22,5 +22,5 @@ class IsAuthenticated(BasePermission):
         if not token:
             return False
 
-        refresh_token = crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
+        refresh_token = await crud_refresh_token.refresh_token.get_by_jti(jti=tokens.decode_access_token(token).jti)
         return refresh_token is not None and not refresh_token.revoked_at
